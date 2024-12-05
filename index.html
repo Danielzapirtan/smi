@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventarul Modurilor Schema</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="patient-app" class="container mx-auto p-4">
+        <div id="app" class="max-w-2xl mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h1 class="text-2xl mb-4 text-center">Inventarul Modurilor Schema - Formular Pacient</h1>
+            
+            <form @submit.prevent="submitForm" v-if="!formSubmitted">
+                <!-- Dynamic questionnaire generation -->
+                <div v-for="(question, index) in questions" :key="index" class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">
+                        {{ question.text }}
+                    </label>
+                    <div class="flex items-center">
+                        <input 
+                            type="range" 
+                            :min="0" 
+                            :max="5" 
+                            v-model="responses[index]" 
+                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                        >
+                        <span class="ml-4">{{ responses[index] || 0 }}</span>
+                    </div>
+                </div>
+                
+                <button 
+                    type="submit" 
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                >
+                    Trimite Formular
+                </button>
+            </form>
+
+            <div v-else class="text-center">
+                <h2 class="text-xl mb-4">Mulțumim pentru completare!</h2>
+                <p>Formularul a fost trimis cu succes.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="clinician-app" class="container mx-auto p-4">
+        <div class="max-w-2xl mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h1 class="text-2xl mb-4 text-center">Inventarul Modurilor Schema - Panoul Clinicianului</h1>
+            
+            <div v-if="submittedForms.length === 0" class="text-center text-gray-600">
+                Nicio înregistrare disponibilă
+            </div>
+
+            <div v-else>
+                <div v-for="(form, index) in submittedForms" :key="index" class="mb-6 p-4 border rounded">
+                    <h2 class="text-lg font-bold mb-2">Pacient {{ index + 1 }}</h2>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <h3 class="font-semibold">Scoruri Moduri:</h3>
+                            <ul>
+                                <li v-for="(score, mode) in calculateModeScores(form)" :key="mode">
+                                    {{ mode }}: {{ score }}
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h3 class="font-semibold">Interpretare:</h3>
+                            <p>{{ interpretResults(calculateModeScores(form)) }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const { createApp } = Vue;
+
+    // Patient-Side Application
+    createApp({
+        data() {
+            return {
+                // Questions in Romanian
+                questions: [
+                    { text: "Simt că nu sunt iubit sau important.", mode: "Abandoned Child" },
+                    { text: "Mă simt neputincios și incapabil să fac față provocărilor.", mode: "Vulnerable Child" },
+                    { text: "Încerc să am totul sub control.", mode: "Detached Protector" },
+                    // Add more questions mapping to different schema modes
+                ],
+                responses: [],
+                formSubmitted: false
+            }
+        },
+        methods: {
+            submitForm() {
+                // Validate all questions are answered
+                if (this.responses.length !== this.questions.length) {
+                    alert('Vă rugăm să răspundeți la toate întrebările!');
+                    return;
+                }
+
+                // Simulate form submission (in real app, would use axios/fetch)
+                const submissionData = this.questions.map((q, index) => ({
+                    question: q.text,
+                    mode: q.mode,
+                    score: this.responses[index]
+                }));
+
+                // In a real application, you would send this to a backend
+                console.log('Form submitted:', submissionData);
+                
+                // Local storage or backend communication would happen here
+                this.formSubmitted = true;
+            }
+        }
+    }).mount('#patient-app');
+
+    // Clinician-Side Application
+    createApp({
+        data() {
+            return {
+                // Simulated submitted forms data
+                submittedForms: [
+                    // This would typically come from a backend or local storage
+                    [
+                        { question: "Simt că nu sunt iubit sau important.", mode: "Abandoned Child", score: 4 },
+                        { question: "Mă simt neputincios și incapabil să fac față provocărilor.", mode: "Vulnerable Child", score: 3 }
+                    ]
+                ]
+            }
+        },
+        methods: {
+            calculateModeScores(form) {
+                // Group scores by mode and calculate average
+                const modeScores = {};
+                form.forEach(item => {
+                    if (!modeScores[item.mode]) {
+                        modeScores[item.mode] = [];
+                    }
+                    modeScores[item.mode].push(item.score);
+                });
+
+                // Calculate average scores for each mode
+                Object.keys(modeScores).forEach(mode => {
+                    const avg = modeScores[mode].reduce((a, b) => a + b, 0) / modeScores[mode].length;
+                    modeScores[mode] = avg.toFixed(2);
+                });
+
+                return modeScores;
+            },
+            interpretResults(modeScores) {
+                // Basic interpretation logic
+                const interpretations = {
+                    'Abandoned Child': 'Posibilă nevoie de validare emoțională',
+                    'Vulnerable Child': 'Semne de anxietate și nevoi neîmplinite',
+                    'Detached Protector': 'Mecanism de apărare prin distanțare emoțională'
+                };
+
+                return Object.entries(modeScores)
+                    .map(([mode, score]) => 
+                        `${mode} (${score}): ${interpretations[mode] || 'Fără interpretare specifică'}`)
+                    .join('; ');
+            }
+        }
+    }).mount('#clinician-app');
+    </script>
+</body>
+</html>
