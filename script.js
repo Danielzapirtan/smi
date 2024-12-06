@@ -134,6 +134,14 @@ const questions = [
   "123. Mă simt mai bine dacă îmi asum că lucrurile NU vor merge bine pentru mine, ca să nu mă simt dezamăgit atunci când sunt probleme.",
   "124. Îmi vine greu să fiu prietenos şi spontan. ",
 ];
+  function hasQueryParam(paramName) {
+    // Get the current URL's search parameters
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Check if the parameter exists
+    return urlParams.has(paramName);
+  }
+
 
 questions.forEach((question, index) => {
   const questionDiv = document.createElement("div");
@@ -151,7 +159,7 @@ questions.forEach((question, index) => {
     select.appendChild(opt);
   });
 
-  select.selectedIndex = Math.floor(Math.random() * 6);
+  select.selectedIndex = hasQueryParam("test") ? Math.floor(Math.random() * 6) : (-1);
   questionDiv.appendChild(select);
 
   // Append questionDiv with question and select directly to container
