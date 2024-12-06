@@ -1,172 +1,157 @@
 <!DOCTYPE html>
 <html lang="ro">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Inventarul Modurilor Schema</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <title>Chestionar YSQ-L3</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial scale=1.0">
+  <style>
+    :root {
+      --font-size: 3.5mm;
+      --spacing: 2.55mm;
+      --ans: 97mm;
+      --quenr: 7mm;
+      --indent: var(--quenr);
+      --indent1: 1em;
+      --radius: 3mm;
+      --paddr: 1.5mm;
+      --margin-left: 5.5mm;
+      --margin-right: 11mm;
+      --margins: calc(var(--margin-left) + var(--margin-right));
+      --width: calc(100vw - var(--margins));
+    }
+
+    header {
+      text-align: center;
+      font-family: Helvetica, sans-serif;
+      font-size: 8.7mm;
+      font-weight: bold;
+    }
+
+    main {
+      margin-left: var(--margin-left);
+      margin-right: var(--margin-right);
+      font-family: Helvetica, sans-serif;
+      font-size: var(--font-size);
+    }
+
+    .spacing {
+      height: var(--spacing);
+    }
+
+    .question {
+      display: flex;
+      flex-direction: row;
+      align-items: justify;
+      color: #002;
+      font-weight: 385;
+      min-width: var(--width);
+      max-width: var(--width);
+      margin-bottom: 0.35mm;
+    }
+
+    .quenr {
+      display: inline-block;
+      background-color: #aff;
+      text-align: right;
+      padding-left: 3mm;
+      min-width: var(--quenr);
+      max-width: var(--quenr);
+      border-top-left-radius: var(--radius);
+      border-bottom-left-radius: var(--radius);
+    }
+
+    .question1 {
+      display: inline-block;
+      background-color: #aff;
+      text-align: left;
+      box-sizing: border-box;
+      min-width: calc(var(--width) - var(--ans) - var(--indent) - var(--quenr) - 2mm);
+      max-width: calc(var(--width) - var(--ans) - var(--indent) - var(--quenr) - 2mm);
+      text-indent: -var(--indent1);
+      margin-left: -var(--indent1);
+      padding-left: 1.4mm;
+      border-top-right-radius: var(--radius);
+      border-bottom-right-radius: var(--radius);
+    }
+
+    .gap {
+      width: var(--paddr);
+      background-color: white;
+    }
+
+    .question2:hover {
+      background-color: #f0f0f0;
+      /*transform: scale(1.05);*/
+      /* Slightly enlarge on hover */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      /* Add subtle shadow */
+    }
+
+    .question2 {
+      display: block;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+      box-sizing: border-box;
+      min-width: var(--ans);
+      max-width: var(--ans);
+    }
+
+    .aldine {
+      font-weight: bold;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
+
 <body>
-    <div id="patient-app" class="container mx-auto p-4">
-        <div id="app" class="max-w-2xl mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <h1 class="text-2xl mb-4 text-center">Inventarul Modurilor Schema - Formular Pacient</h1>
-            
-            <form @submit.prevent="submitForm" v-if="!formSubmitted">
-                <!-- Dynamic questionnaire generation -->
-                <div v-for="(question, index) in questions" :key="index" class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">
-                        {{ question.text }}
-                    </label>
-                    <div class="flex items-center">
-                        <input 
-                            type="range" 
-                            :min="0" 
-                            :max="5" 
-                            v-model="responses[index]" 
-                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                        >
-                        <span class="ml-4">{{ responses[index] || 0 }}</span>
-                    </div>
-                </div>
-                
-                <button 
-                    type="submit" 
-                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                >
-                    Trimite Formular
-                </button>
-            </form>
-
-            <div v-else class="text-center">
-                <h2 class="text-xl mb-4">Mulțumim pentru completare!</h2>
-                <p>Formularul a fost trimis cu succes.</p>
-            </div>
+  <header>
+    <div>Chestionarul schemelor cognitive Young</div>
+    <div>YSQ-L3</div>
+  </header>
+  <main>
+    <div id="patient">
+      <div class="spacing"></div>
+      <div class="spacing"></div>
+      <form id="questionnaireForm" onsubmit="submitForm(event)">
+        <label for="firstname" class="aldine">Prenume: </label>
+        <input type="text" id="firstname" required>
+        <label for="lastname" class="aldine">Nume: </label>
+        <input type="text" id="lastname" required>
+        <div class="spacing"></div>
+        <div class="spacing"></div>
+        <div class="aldine">
+          Instrucțiuni pentru completarea chestionarului:
         </div>
+        Citiți cu atenție fiecare afirmație de mai jos, concepută pentru a vă ajuta să vă definiți pe dumneavoastră înșivă. Evaluați cât de bine vă descrie fiecare afirmație, reflectând asupra modului în care se aplică la propria persoană. Dacă totuși nu sunteți sigur, bazați-vă pe reacția emoțională și alegeți răspunsul care reflectă ceea ce simțiți, nu ceea ce credeți că ar trebui să fie adevărat! 
+        Dați click pe caseta cu săgeată din dreptul fiecărui item pentru a selecta calificativul potrivit, alegând opțiunea care indică cel mai bine gradul în care afirmația vi se potrivește.
+        Continuați acest proces până când ați evaluat toate afirmațiile.
+        <div class="spacing"></div>
+        Fiți sincer în răspunsuri pentru a obține o reflecție autentică a percepției de sine. Nu petreceți prea mult timp pe o singură afirmație; prima impresie este adesea cea mai revelatoare.
+        <div class="spacing"></div>
+        La sfârșit, apăsați
+        <span class="aldine">'Descarcă fișier CSV'</span>
+        și trimiteți-l de pe dispozitivul dumneavoastră psihoterapeutului prin e-mail.
+        <div class="spacing"></div>
+        <div class="spacing"></div>
+        <div id="questions"></div>
+        <div class="spacing"></div>
+        <div class="spacing"></div>
+        <button type="submit">Descarcă fișier CSV</button> <!-- Move submit button inside the form -->
+        <div class="spacing"></div>
+        <div class="spacing"></div>
+        <div class="spacing"></div>
+      </form>
     </div>
-
-    <div id="clinician-app" class="container mx-auto p-4">
-        <div class="max-w-2xl mx-auto bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <h1 class="text-2xl mb-4 text-center">Inventarul Modurilor Schema - Panoul Clinicianului</h1>
-            
-            <div v-if="submittedForms.length === 0" class="text-center text-gray-600">
-                Nicio înregistrare disponibilă
-            </div>
-
-            <div v-else>
-                <div v-for="(form, index) in submittedForms" :key="index" class="mb-6 p-4 border rounded">
-                    <h2 class="text-lg font-bold mb-2">Pacient {{ index + 1 }}</h2>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <h3 class="font-semibold">Scoruri Moduri:</h3>
-                            <ul>
-                                <li v-for="(score, mode) in calculateModeScores(form)" :key="mode">
-                                    {{ mode }}: {{ score }}
-                                </li>
-                            </ul>
-                        </div>
-                        
-                        <div>
-                            <h3 class="font-semibold">Interpretare:</h3>
-                            <p>{{ interpretResults(calculateModeScores(form)) }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-    const { createApp } = Vue;
-
-    // Patient-Side Application
-    createApp({
-        data() {
-            return {
-                // Questions in Romanian
-                questions: [
-                    { text: "Simt că nu sunt iubit sau important.", mode: "Abandoned Child" },
-                    { text: "Mă simt neputincios și incapabil să fac față provocărilor.", mode: "Vulnerable Child" },
-                    { text: "Încerc să am totul sub control.", mode: "Detached Protector" },
-                    // Add more questions mapping to different schema modes
-                ],
-                responses: [],
-                formSubmitted: false
-            }
-        },
-        methods: {
-            submitForm() {
-                // Validate all questions are answered
-                if (this.responses.length !== this.questions.length) {
-                    alert('Vă rugăm să răspundeți la toate întrebările!');
-                    return;
-                }
-
-                // Simulate form submission (in real app, would use axios/fetch)
-                const submissionData = this.questions.map((q, index) => ({
-                    question: q.text,
-                    mode: q.mode,
-                    score: this.responses[index]
-                }));
-
-                // In a real application, you would send this to a backend
-                console.log('Form submitted:', submissionData);
-                
-                // Local storage or backend communication would happen here
-                this.formSubmitted = true;
-            }
-        }
-    }).mount('#patient-app');
-
-    // Clinician-Side Application
-    createApp({
-        data() {
-            return {
-                // Simulated submitted forms data
-                submittedForms: [
-                    // This would typically come from a backend or local storage
-                    [
-                        { question: "Simt că nu sunt iubit sau important.", mode: "Abandoned Child", score: 4 },
-                        { question: "Mă simt neputincios și incapabil să fac față provocărilor.", mode: "Vulnerable Child", score: 3 }
-                    ]
-                ]
-            }
-        },
-        methods: {
-            calculateModeScores(form) {
-                // Group scores by mode and calculate average
-                const modeScores = {};
-                form.forEach(item => {
-                    if (!modeScores[item.mode]) {
-                        modeScores[item.mode] = [];
-                    }
-                    modeScores[item.mode].push(item.score);
-                });
-
-                // Calculate average scores for each mode
-                Object.keys(modeScores).forEach(mode => {
-                    const avg = modeScores[mode].reduce((a, b) => a + b, 0) / modeScores[mode].length;
-                    modeScores[mode] = avg.toFixed(2);
-                });
-
-                return modeScores;
-            },
-            interpretResults(modeScores) {
-                // Basic interpretation logic
-                const interpretations = {
-                    'Abandoned Child': 'Posibilă nevoie de validare emoțională',
-                    'Vulnerable Child': 'Semne de anxietate și nevoi neîmplinite',
-                    'Detached Protector': 'Mecanism de apărare prin distanțare emoțională'
-                };
-
-                return Object.entries(modeScores)
-                    .map(([mode, score]) => 
-                        `${mode} (${score}): ${interpretations[mode] || 'Fără interpretare specifică'}`)
-                    .join('; ');
-            }
-        }
-    }).mount('#clinician-app');
+  </main>
+  <footer>
+    <script src="script.js">
     </script>
+  </footer>
 </body>
+
 </html>
